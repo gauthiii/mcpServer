@@ -6,7 +6,7 @@ from mcp_use import MCPAgent, MCPClient
 
 async def main():
     # Load environment variables (expects GROQ_API_KEY in your .env)
-    load_dotenv()
+    load_dotenv("../.env")
 
     # Create configuration dictionary
     config = {

@@ -1,9 +1,6 @@
-# MCP + Groq Playwright Agent
+# MCP Projects Overview
 
-This project demonstrates an **MCP-enabled agent** that uses:
-- **Groq** (LLM via `langchain_groq`)
-- **Playwright MCP** (browser automation via MCP server)
-- Optional extra MCP servers: **Airbnb** and **DuckDuckGo Search**
-- A simple agent wrapper (`MCPAgent`, `MCPClient`) to orchestrate tool calls
-
-The agent runs a query like _“Find the best restaurant in Tempe”_ and can browse/automate via MCP.
+| **#** | **Project Name** | **Description** | **MCP Servers Used** | **LLM / Framework** |
+|:--:|:--|:--|:--|:--|
+| **1** | `mcp_servers_external` | Demonstrates using multiple external MCP servers (Playwright, Airbnb, DuckDuckGo Search) to enable browsing, booking, and search automation via MCP client orchestration. | `@playwright/mcp`, `@openbnb/mcp-server-airbnb`, `duckduckgo-mcp-server` | **Groq**, **OpenAI**, MCP client (`mcp_use`) |
+| **2** | `math_weather_multiserver` | Implements two custom MCP servers — one for mathematical operations (`add`, `multiply`) and another for real-time weather data. Uses LangChain’s multi-server MCP client to let a Groq LLM dynamically invoke the correct server tools. | `MathMCP`, `WeatherMCP` | **Groq**, **LangChain MCP Client** |
