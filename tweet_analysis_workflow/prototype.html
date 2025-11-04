@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter Engagement Time Series Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .control-group select {
+            padding: 10px 15px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: white;
+            color: #333;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-group select:hover {
+            border-color: #764ba2;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 500px;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        #time-series-chart {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            font-size: 1.1em;
+        }
+
+        .error {
+            background: #fee;
+            border: 2px solid #f88;
+            color: #c33;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .chart-wrapper {
+                height: 400px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .control-group {
+                width: 100%;
+            }
+
+            .control-group select {
+                width: 100%;
+            }
+        }
+
+        .legend-custom {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        .legend-item.likes .legend-color {
+            background-color: #667eea;
+        }
+
+        .legend-item.retweets .legend-color {
+            background-color: #764ba2;
+        }
+
+        .legend-item.replies .legend-color {
+            background-color: #f093fb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Twitter Engagement Time Series</h1>
+            <p>Track likes, retweets, and replies over time</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="intervalSelect">Time Interval:</label>
+                <select id="intervalSelect">
+                    <option value="day">Daily</option>
+                    <option value="week">Weekly</option>
+                    <option value="month">Monthly</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="metricsSelect">Metrics:</label>
+                <select id="metricsSelect">
+                    <option value="all">All Metrics</option>
+                    <option value="likes">Likes Only</option>
+                    <option value="retweets">Retweets Only</option>
+                    <option value="replies">Replies Only</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="chart-wrapper">
+            <canvas id="time-series-chart"></canvas>
+        </div>
+
+        <div class="legend-custom">
+            <div class="legend-item likes">
+                <div class="legend-color"></div>
+                <span>Likes</span>
+            </div>
+            <div class="legend-item retweets">
+                <div class="legend-color"></div>
+                <span>Retweets</span>
+            </div>
+            <div class="legend-item replies">
+                <div class="legend-color"></div>
+                <span>Replies</span>
+            </div>
+        </div>
+
+        <div class="stats-container" id="statsContainer"></div>
+    </div>
+
+    <script src="output.js"></script>
+    <script>
+        // Initialize variables
+        let chart = null;
+        let originalData = [];
+
+        /**
+         * Initialize the application and load data from output.js
+         */
+        function initializeApplication() {
+            try {
+                // Access jsonData from output.js
+                if (typeof jsonData === 'undefined') {
+                    throw new Error('jsonData is not defined. Ensure output.js is loaded correctly.');
+                }
+
+                originalData = Array.isArray(jsonData) ? jsonData : [];
+
+                if (originalData.length === 0) {
+                    throw new Error('No data available in jsonData. Dataset is empty.');
+                }
+
+                // Validate data structure
+                if (!validateDataStructure(originalData)) {
+                    throw new Error('Invalid data structure. Missing required fields.');
+                }
+
+                // Initial chart render
+                renderChart('day', 'all');
+
+                // Add event listeners
+                document.getElementById('intervalSelect').addEventListener('change', (e) => {
+                    const metrics = document.getElementById('metricsSelect').value;
+                    renderChart(e.target.value, metrics);
+                });
+
+                document.getElementById('metricsSelect').addEventListener('change', (e) => {
+                    const interval = document.getElementById('intervalSelect').value;
+                    renderChart(interval, e.target.value);
+                });
+
+            } catch (error) {
+                console.error('Initialization Error:', error);
+                displayError(error.message);
+            }
+        }
+
+        /**
+         * Validate data structure
+         * @param {Array} data - Data to validate
+         * @returns {boolean} True if data is valid
+         */
+        function validateDataStructure(data) {
+            if (!Array.isArray(data) || data.length === 0) {
+                return false;
+            }
+
+            const requiredFields = ['created_at', 'like_count', 'retweet_count', 'reply_count'];
+            return data.every(tweet =>
+                requiredFields.every(field => field in tweet)
+            );
+        }
+
+        /**
+         * Display error message
+         * @param {string} message - Error message to display
+         */
+        function displayError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = `Error: ${message}`;
+            const container = document.querySelector('.container');
+            container.insertBefore(errorDiv, container.firstChild);
+        }
+
+        /**
+         * Parse ISO datetime string to Date object
+         * @param {string} dateString - ISO format datetime (YYYY-MM-DDTHH:MM:SS)
+         * @returns {Date} Parsed date object
+         */
+        function parseDateTime(dateString) {
+            return new Date(dateString);
+        }
+
+        /**
+         * Format date based on interval type
+         * @param {Date} date - Date to format
+         * @param {string} interval - Interval type (day, week, month)
+         * @returns {string} Formatted date string
+         */
+        function formatDateByInterval(date, interval) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+
+            switch(interval) {
+                case 'day':
+                    return `${year}-${month}-${day}`;
+                case 'week':
+                    const weekStart = new Date(date);
+                    weekStart.setDate(date.getDate() - date.getDay());
+                    return `Week of ${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+                case 'month':
+                    return `${year}-${month}`;
+                default:
+                    return `${year}-${month}-${day}`;
+            }
+        }
+
+        /**
+         * Group data by time interval and aggregate engagement metrics
+         * @param {Array} data - Tweet data array
+         * @param {string} interval - Time interval (day, week, month)
+         * @returns {Array} Aggregated data by interval
+         */
+        function groupDataByInterval(data, interval) {
+            const grouped = {};
+
+            data.forEach(tweet => {
+                const date = parseDateTime(tweet.created_at);
+                const key = formatDateByInterval(date, interval);
+
+                if (!grouped[key]) {
+                    grouped[key] = {
+                        date: date,
+                        likes: 0,
+                        retweets: 0,
+                        replies: 0,
+                        count: 0
+                    };
+                }
+
+                grouped[key].likes += tweet.like_count || 0;
+                grouped[key].retweets += tweet.retweet_count || 0;
+                grouped[key].replies += tweet.reply_count || 0;
+                grouped[key].count += 1;
+            });
+
+            // Sort by date
+            return Object.entries(grouped)
+                .sort(([, a], [, b]) => a.date - b.date)
+                .map(([label, data]) => ({
+                    label,
+                    ...data
+                }));
+        }
+
+        /**
+         * Create time series chart configuration
+         * @param {Array} timeSeriesData - Aggregated time series data
+         * @param {string} metrics - Which metrics to display (all, likes, retweets, replies)
+         * @returns {Object} Chart configuration object
+         */
+        function getChartConfig(timeSeriesData, metrics = 'all') {
+            const labels = timeSeriesData.map(item => item.label);
+            const datasets = [];
+
+            if (metrics === 'all' || metrics === 'likes') {
+                datasets.push({
+                    label: 'Total Likes',
+                    data: timeSeriesData.map(item => item.likes),
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#667eea',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 7,
+                    yAxisID: 'y'
+                });
+            }
+
+            if (metrics === 'all' || metrics === 'retweets') {
+                datasets.push({
+                    label: 'Total Retweets',
+                    data: timeSeriesData.map(item => item.retweets),
+                    borderColor: '#764ba2',
+                    backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#764ba2',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 7,
+                    yAxisID: 'y'
+                });
+            }
+
+            if (metrics === 'all' || metrics === 'replies') {
+                datasets.push({
+                    label: 'Total Replies',
+                    data: timeSeriesData.map(item => item.replies),
+                    borderColor: '#f093fb',
+                    backgroundColor: 'rgba(240, 147, 251, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#f093fb',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 7,
+                    yAxisID: 'y'
+                });
+            }
+
+            return {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Engagement Count'
+                            },
+                            min: 0,
+                            beginAtZero: true
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        /**
+         * Render the chart with given interval and metrics
+         * @param {string} interval - Time interval (day, week, month)
+         * @param {string} metrics - Which metrics to display
+         */
+        function renderChart(interval, metrics) {
+            const groupedData = groupDataByInterval(originalData, interval);
+            const config = getChartConfig(groupedData, metrics);
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            const ctx = document.getElementById('time-series-chart').getContext('2d');
+            chart = new Chart(ctx, config);
+        }
+
+        // Initialize the application when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', initializeApplication);
+    </script>
+</body>
+</html>
