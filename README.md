@@ -8,7 +8,7 @@ An **MCP Server** exposes tools or functions (like weather, math, or Gmail APIs)
 
 ### MCP Projects Overview
 
-| **S.NO** || **Project Description** | **MCP Servers Used** | **LLM / Framework** |
+| **S.No** | **Project Description** | **MCP Servers Used** | **LLM / Framework** |
 |:--|:--|:--|:--|
 | 1 | **`mcp_servers_external`**<br> Demonstrates how multiple external MCP servers (like Playwright for browsing, Airbnb for booking, and DuckDuckGo for searching) can work together. The LLM uses these servers through a unified MCP client to automate real-world web actions such as searching, navigating sites, and simulating user tasks. | `@playwright/mcp`, `@openbnb/mcp-server-airbnb`, `duckduckgo-mcp-server` | **Groq**, **OpenAI**, MCP client (`mcp_use`) |
 | 2 | **`math_weather_multiserver`**<br> Shows how two custom-built MCP servers can work together — one handles mathematical calculations (`add`, `multiply`), while the other fetches live weather data. A LangChain-based multi-server MCP client allows the LLM (Groq) to choose and call the right tool dynamically depending on the user’s query. | `MathMCP`, `WeatherMCP` | **Groq**, **LangChain MCP Client** |
