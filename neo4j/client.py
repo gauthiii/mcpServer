@@ -40,58 +40,16 @@ async def main():
         tool_mapping = tool_def_maker.build_tool_mapping(tools, tool_defs)
 
     import task_executor
-
-    # print(tool_defs)
-
-    # print(json.dumps(tool_defs,indent=4))
-
-    prompt = f'''
-
-Create the following node with the following label and properties
-
-- Label: Movies
-- Properties:
-    - name: Thuppakki
-
-- Label: Movies
-- Properties:
-    - name: Vikram
-
-- Label: Movies
-- Properties:
-    - name: Leo
-
-- Label: Movies
-- Properties:
-    - name: Jailer
-
-
-Once you have created nodes, I need to see all the nodes under Movies label
-
-Along with the strategy give me the query you will use to see all the nodes.
-
-
-'''
-    
-    prompt = f'''
-
-    Create a relationship for the following.
-
-    Tom from label Cartoon likes watching Thuppakki from label Movies.
-    Jerry from label Cartoon like watching Leo from label Movies.
+    from prompts.create import prompt as p1
+    from prompts.relationship import prompt as p2
+    from prompts.run import prompt as p3
+    from prompts.run import prompt1 as p4
+    from prompts.run import prompt2 as p5
+    from prompts.run import prompt3 as p6
 
 
 
-'''
-    
-
-    # strategy = task_executor.planner_ollama(prompt, tool_defs)
-
-    # print(strategy)
-
-    # res = await task_executor.task_executor_openai(strategy,tool_mapping, tool_defs)
-
-    res = await task_executor.task_executor_openai("Give me the entire schema view", tool_mapping, tool_defs)
+    res = await task_executor.task_executor_openai(p4, tool_mapping, tool_defs)
 
     print(res)
 
