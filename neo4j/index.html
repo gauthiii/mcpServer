@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Neo4j MCP Playground</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <div class="max-w-3xl mx-auto p-6">
+    <header class="mb-6">
+      <h1 class="text-2xl font-semibold">Neo4j MCP Playground</h1>
+      <p class="text-sm text-slate-600 mt-1">
+        Type a task (e.g., “Show nodes and their relationships”) and run.
+      </p>
+    </header>
+
+    <main class="space-y-4">
+      <!-- Input -->
+      <div>
+        <label for="prompt" class="block text-sm font-medium text-slate-700 mb-2">Task</label>
+        <textarea id="prompt" rows="6"
+          class="w-full rounded-xl border border-slate-300 p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shadow-sm"
+          placeholder="Example: Show nodes and their relationships"></textarea>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-3">
+        <button id="runBtn"
+          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white font-medium shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+          <svg id="spinner" class="hidden animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+          </svg>
+          <span>Run</span>
+        </button>
+
+        <button id="clearBtn"
+          class="px-4 py-2 rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 transition">
+          Clear
+        </button>
+
+        <div id="status" class="text-sm text-slate-600"></div>
+      </div>
+
+      <!-- Output -->
+      <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-4 py-2 border-b bg-slate-50 text-sm font-semibold text-slate-700">
+          Result
+        </div>
+        <pre id="output" class="p-4 text-sm whitespace-pre-wrap leading-6"></pre>
+      </section>
+    </main>
+
+    <footer class="mt-10 text-xs text-slate-500">
+      API: <code>POST http://localhost:8000/execute</code>
+    </footer>
+  </div>
+
+  <script>
+    const runBtn = document.getElementById('runBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const spinner = document.getElementById('spinner');
+    const promptEl = document.getElementById('prompt');
+    const outputEl = document.getElementById('output');
+    const statusEl = document.getElementById('status');
+
+    const API_URL = 'http://localhost:8000/execute';
+
+    function setLoading(isLoading) {
+      if (isLoading) {
+        spinner.classList.remove('hidden');
+        runBtn.disabled = true;
+        statusEl.textContent = 'Running…';
+      } else {
+        spinner.classList.add('hidden');
+        runBtn.disabled = false;
+        statusEl.textContent = '';
+      }
+    }
+
+    async function runTask() {
+      const prompt = promptEl.value.trim();
+      if (!prompt) {
+        outputEl.textContent = 'Please enter a task.';
+        return;
+      }
+
+      setLoading(true);
+      outputEl.textContent = '';
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ prompt })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || 'Unknown error');
+        }
+
+        outputEl.innerHTML = data.result;
+      } catch (err) {
+        outputEl.textContent = `Error: ${err.message || err}`;
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    runBtn.addEventListener('click', runTask);
+    clearBtn.addEventListener('click', () => {
+      promptEl.value = '';
+      outputEl.textContent = '';
+      statusEl.textContent = '';
+    });
+
+    // Cmd/Ctrl + Enter
+    promptEl.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        runTask();
+      }
+    });
+  </script>
+</body>
+</html>

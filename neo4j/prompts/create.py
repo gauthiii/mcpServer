@@ -2,26 +2,24 @@ prompt = f'''
 
 Create the following node with the following label and properties
 
-- Label: Movies
+- Label: Person
 - Properties:
-    - name: Kaithi
+    - name: Tony
 
-- Label: Movies
+- Label: Person
 - Properties:
-    - name: Master
+    - name: Steve
 
-- Label: Movies
+- Label: Person
 - Properties:
-    - name: Theri
+    - name: Bruce
 
-- Label: Movies
+- Label: Person
 - Properties:
-    - name: Mersal
+    - name: Peter
 
 
-Once you have created nodes, I need to see all the nodes under Movies label
-
-Along with the strategy give me the query you will use to see all the nodes.
+Once you have created nodes, I need to see all the nodes under Person label
 
 
 '''

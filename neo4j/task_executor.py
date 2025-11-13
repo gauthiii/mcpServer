@@ -59,7 +59,7 @@ def planner_ollama(query, tool_defs, model: str = "ollama:gemma3:latest") -> str
     return response.choices[0].message.content
     
 
-async def task_executor_openai(strategy,tool_mapping, tool_defs, model: str = "openai:gpt-4o-mini") -> str: 
+async def task_executor_openai(strategy,tool_mapping, tool_defs, systemPrompt: dict ={"role": "system", "content":""}, model: str = "openai:gpt-4o-mini") -> str: 
 
     ### START CODE HERE ###
 
@@ -68,6 +68,19 @@ async def task_executor_openai(strategy,tool_mapping, tool_defs, model: str = "o
     
 
     {strategy}
+
+
+    Once you display the results, Give me a short summary that is concise for the user to understand.
+
+    ### IMPORTANT
+
+    Give this output as a html <div> tag like this:
+
+    Note: Alignment must be to the left.
+
+    <div>
+    .... // your output
+    </div>
 
   
 
@@ -83,7 +96,8 @@ async def task_executor_openai(strategy,tool_mapping, tool_defs, model: str = "o
 
     messages = [
 
-                {"role": "system", "content": "You are a smart webscraper and data analyst."},
+                {"role": "system", "content": "You are a senior data analyst who is an expertise with Neo4j Databses."},
+                systemPrompt,
                 {"role": "user", "content": prompt}
                 ]
 

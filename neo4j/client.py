@@ -35,21 +35,33 @@ async def main():
     # 4️⃣ Collect tools exposed by the MCP servers
     tools = await client.get_tools()
 
+    # 4️⃣ Collect prompts exposed by the MCP servers
+    systemPromptMessage = await client.get_prompt(server_name="neo4j",prompt_name="neo4j_schema")
+    systemPrompt = {"role": "system", "content": systemPromptMessage[0].content}
+
+    print("MCP Prompt: ")
+
+    print(systemPrompt)
+
+    print("***************")
+
     if tools:
         tool_defs = [tool_def_maker.lc_tool_to_openai_def(t) for t in tools]
         tool_mapping = tool_def_maker.build_tool_mapping(tools, tool_defs)
 
     import task_executor
-    from prompts.create import prompt as p1
-    from prompts.relationship import prompt as p2
-    from prompts.run import prompt as p3
-    from prompts.run import prompt1 as p4
-    from prompts.run import prompt2 as p5
-    from prompts.run import prompt3 as p6
+    # from prompts.create import prompt as p1
+    # from prompts.relationship import prompt as p2
+    # from prompts.run import prompt as p3
+    # from prompts.run import prompt1 as p4
+    # from prompts.run import prompt2 as p5
+    # from prompts.run import prompt3 as p6
+    # from prompts.run import prompt4 as p7
+    from prompts.run import promptx
 
 
 
-    res = await task_executor.task_executor_openai(p4, tool_mapping, tool_defs)
+    res = await task_executor.task_executor_openai(promptx, tool_mapping, tool_defs, systemPrompt)
 
     print(res)
 
