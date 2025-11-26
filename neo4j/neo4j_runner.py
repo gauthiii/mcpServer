@@ -64,4 +64,11 @@ async def run_neo4j_task(user_prompt: str) -> str:
         systemPrompt=systemPrompt,
     )
 
-    return res
+    res2 = await task_executor.task_executor_openai2(
+        query=res,
+        tool_mapping=tool_mapping,
+        tool_defs=tool_defs,
+        systemPrompt=systemPrompt,
+    )
+
+    return res + "\n " + res2

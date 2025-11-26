@@ -465,6 +465,9 @@ def neo4j_schema_prompt() -> list[dict]:
     text = build_schema_text()
     # return [{"role": "system", "content": text}]
 
+    with open('schema.txt', 'w') as f:
+        f.write(text)
+
     # FastMCP prompts can only return 'user' or 'assistant'
     return [{"role": "assistant", "content": text}]
 
