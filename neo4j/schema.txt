@@ -1,116 +1,29 @@
 This is the schema representation of the Neo4j database.
 
 Node properties (by label):
-- (:`Framework`): ['framework_id', 'name', 'publication_date', 'version', 'publication', 'total_functions', 'total_categories', 'total_subcategories', 'trustworthy_ai_characteristics', 'framework_type', 'description', 'release_date', 'status', 'full_title', 'purpose', 'key_updates', 'alignment_frameworks', 'total_steps', 'total_control_families', 'total_controls', 'scope', 'full_name']
-- (:`Clause`): ['framework_id', 'clause_id', 'description', 'title', 'category', 'parent_clause']
-- (:`Control`): ['framework_id', 'control_id', 'family_id', 'name', 'description', 'related_contorls', 'category_name', 'category', 'control_name', 'legacy_mapping', 'is_new', 'full_description', 'category_id', 'purpose', 'category_code', 'implementation_guidance', 'control_description', 'standard_id']
-- (:`Requirement`): ['framework_id', 'clause_id', 'requirement_id', 'requirement_text', 'requirement_type']
-- (:`ControlCategory`): ['framework_id', 'category_id', 'control_count', 'category_name', 'control_range']
-- (:`Category`): ['framework_id', 'category_id', 'function_id', 'name', 'description', 'control_count', 'category_name', 'control_range', 'category_code', 'standard_id']
-- (:`Attribute`): ['framework_id', 'description', 'attribute_type', 'attribute_value', 'attribute_id', 'attribute_description', 'usage_context']
-- (:`Guideline`): ['framework_id', 'control_id', 'guideline_id', 'guideline_type', 'guideline_text', 'implementation_considerations', 'measurement_criteria']
-- (:`Function`): ['framework_id', 'function_id', 'function_name', 'function_definition', 'name', 'description', 'definition', 'primary_focus', 'key_activities', 'is_foundational']
-- (:`Subcategory`): ['framework_id', 'category_id', 'function_id', 'subcategory_id', 'name', 'description', 'example', 'subcategory_name']
-- (:`Step`): ['framework_id', 'step_id', 'step_number', 'step_name', 'objective', 'is_new_in_rev2', 'step_description']
-- (:`ControlFamily`): ['framework_id', 'family_id', 'family_name', 'control_count', 'family_description', 'control_category', 'nist_publication']
-- (:`Role`): ['framework_id', 'role_id', 'role_title', 'role_description', 'role_type', 'decision_authority']
-- (:`Framework Catalog`): ['coverage', 'applicable_areas', 'name', 'description', 'publisher', 'publication_date', 'version_number', 'short_name', 'status']
-- (:`Standard Catalog`): ['coverage', 'applicable_areas', 'name', 'description', 'publisher', 'publication_date', 'version_number', 'short_name', 'status']
-- (:`Regulation Catalog`): ['name', 'short_name', 'status', 'focus_areas', 'region_classification', 'issuing_authority', 'year_of_enactment', 'industry', 'latest_amendment', 'region']
-- (:`Standard`): ['description', 'publication_date', 'version', 'standard_id', 'standard_name', 'type', 'framework_id', 'title', 'safeguard_type', 'text', 'req_type', 'section', 'source_doc', 'source_section']
-- (:`ControlObjective`): ['control_id', 'description', 'standard_id', 'objective_id']
-- (:`ControlSpecification`): ['control_id', 'description', 'standard_id', 'specification_id']
-- (:`Mapping`): ['framework_id', 'type', 'source_doc', 'source_section', 'mapping_id', 'confidence', 'rationale']
-- (:`FrameworkAndStandards`): ['framework_id', 'name', 'description', 'version', 'total_controls', 'total_safeguards']
-- (:`Safeguard`): ['framework_id', 'description', 'version', 'safeguard_id']
-- (:`AssetClass`): ['framework_id', 'name', 'description']
-- (:`SecurityFunction`): ['framework_id', 'name', 'source']
-- (:`ImplementationGroup`): ['framework_id', 'name', 'description', 'safeguard_count']
-- (:`GoverningBody`): ['framework_id', 'name', 'type', 'alias', 'mission']
+- (:`Organization`): ['name', 'created_at']
+- (:`EnterpriseProfile`): ['created_at', 'profile_id', 'company_name', 's3_key', 'updated_at']
+- (:`BusinessProfile`): ['created_at', 'profile_id', 'data']
+- (:`SecurityProfile`): ['created_at', 'profile_id', 'data']
+- (:`TechnologyProfile`): ['created_at', 'profile_id', 'data']
 
 
 Relationship properties (by type):
-- [:`CONTAINS`]: ['Framework', 'Clause', 'ControlCategory', 'Category', 'Standard']
-- [:`HAS_CATEGORY`]: ['Function']
-- [:`HAS_FUNCTION`]: ['Framework']
-- [:`HAS_SUBCATEGORY`]: ['Category']
-- [:`REFERENCES`]: ['Framework']
-- [:`PRECEDES`]: ['Step']
-- [:`INCLUDES`]: ['ControlFamily']
-- [:`INVOLVED_IN`]: ['Role', 'involvement_type']
-- [:`REQUIRES`]: ['Clause']
-- [:`HAS_GUIDELINE`]: ['Control']
-- [:`HAS_ATTRIBUTE`]: ['Control', 'relevance']
-- [:`HAS_CONTROL`]: ['Category', 'FrameworkAndStandards']
-- [:`HAS_OBJECTIVE`]: ['Control']
-- [:`HAS_SPECIFICATION`]: ['ControlObjective']
-- [:`MAPS_TO`]: ['Control', 'Standard', 'confidence', 'mapping_type']
-- [:`HAS_SPEC`]: ['Standard']
-- [:`TARGET`]: ['Mapping']
-- [:`PUBLISHED_BY`]: ['FrameworkAndStandards']
-- [:`HAS_SAFEGUARD`]: ['Control']
-- [:`BELONGS_TO_IMPLEMENTATION_GROUP`]: ['Safeguard']
-- [:`APPLIES_TO_ASSET_CLASS`]: ['Safeguard']
-- [:`SAFEGUARD_MAPS_TO_SECURITY_FUNCTION`]: ['Safeguard']
+- [:`HAS_PROFILE`]: ['Organization']
+- [:`HAS_BUSINESS_PROFILE`]: ['EnterpriseProfile']
+- [:`HAS_SECURITY_PROFILE`]: ['EnterpriseProfile']
+- [:`HAS_TECHNOLOGY_PROFILE`]: ['EnterpriseProfile']
 
 
 Relationship mappings (source → target):
-(:`CONTAINS`) - [:`Framework`] -> (:`['Function', 'Step', 'ControlCategory', 'Clause', 'Category', 'Standard']`)
-(:`CONTAINS`) - [:`Clause`] -> (:`['Clause']`)
-(:`CONTAINS`) - [:`ControlCategory`] -> (:`['Control']`)
-(:`CONTAINS`) - [:`Category`] -> (:`['Subcategory', 'Control']`)
-(:`CONTAINS`) - [:`Standard`] -> (:`['Category']`)
-(:`HAS_CATEGORY`) - [:`Function`] -> (:`['Category']`)
-(:`HAS_FUNCTION`) - [:`Framework`] -> (:`['Function']`)
-(:`HAS_SUBCATEGORY`) - [:`Category`] -> (:`['Subcategory']`)
-(:`REFERENCES`) - [:`Framework`] -> (:`['ControlFamily']`)
-(:`PRECEDES`) - [:`Step`] -> (:`['Step']`)
-(:`INCLUDES`) - [:`ControlFamily`] -> (:`['Control']`)
-(:`INVOLVED_IN`) - [:`Role`] -> (:`['Step']`)
-(:`REQUIRES`) - [:`Clause`] -> (:`['Requirement']`)
-(:`HAS_GUIDELINE`) - [:`Control`] -> (:`['Guideline']`)
-(:`HAS_ATTRIBUTE`) - [:`Control`] -> (:`['Attribute']`)
-(:`HAS_CONTROL`) - [:`Category`] -> (:`['Control']`)
-(:`HAS_CONTROL`) - [:`FrameworkAndStandards`] -> (:`['Control']`)
-(:`HAS_OBJECTIVE`) - [:`Control`] -> (:`['ControlObjective']`)
-(:`HAS_SPECIFICATION`) - [:`ControlObjective`] -> (:`['ControlSpecification']`)
-(:`MAPS_TO`) - [:`Control`] -> (:`['Subcategory']`)
-(:`MAPS_TO`) - [:`Standard`] -> (:`['Mapping']`)
-(:`HAS_SPEC`) - [:`Standard`] -> (:`['Standard']`)
-(:`TARGET`) - [:`Mapping`] -> (:`['Subcategory']`)
-(:`PUBLISHED_BY`) - [:`FrameworkAndStandards`] -> (:`['GoverningBody']`)
-(:`HAS_SAFEGUARD`) - [:`Control`] -> (:`['Safeguard']`)
-(:`BELONGS_TO_IMPLEMENTATION_GROUP`) - [:`Safeguard`] -> (:`['ImplementationGroup']`)
-(:`APPLIES_TO_ASSET_CLASS`) - [:`Safeguard`] -> (:`['AssetClass']`)
-(:`SAFEGUARD_MAPS_TO_SECURITY_FUNCTION`) - [:`Safeguard`] -> (:`['SecurityFunction']`)
-(:`Framework`) - [:`CONTAINS`] -> (:`['Function', 'Step', 'ControlCategory', 'Clause', 'Category', 'Standard']`)
-(:`Framework`) - [:`HAS_FUNCTION`] -> (:`['Function']`)
-(:`Framework`) - [:`REFERENCES`] -> (:`['ControlFamily']`)
-(:`Clause`) - [:`CONTAINS`] -> (:`['Clause']`)
-(:`Clause`) - [:`REQUIRES`] -> (:`['Requirement']`)
-(:`Control`) - [:`HAS_GUIDELINE`] -> (:`['Guideline']`)
-(:`Control`) - [:`HAS_ATTRIBUTE`] -> (:`['Attribute']`)
-(:`Control`) - [:`HAS_OBJECTIVE`] -> (:`['ControlObjective']`)
-(:`Control`) - [:`MAPS_TO`] -> (:`['Subcategory']`)
-(:`Control`) - [:`HAS_SAFEGUARD`] -> (:`['Safeguard']`)
-(:`ControlCategory`) - [:`CONTAINS`] -> (:`['Control']`)
-(:`Category`) - [:`CONTAINS`] -> (:`['Subcategory', 'Control']`)
-(:`Category`) - [:`HAS_SUBCATEGORY`] -> (:`['Subcategory']`)
-(:`Category`) - [:`HAS_CONTROL`] -> (:`['Control']`)
-(:`Function`) - [:`HAS_CATEGORY`] -> (:`['Category']`)
-(:`Step`) - [:`PRECEDES`] -> (:`['Step']`)
-(:`ControlFamily`) - [:`INCLUDES`] -> (:`['Control']`)
-(:`Role`) - [:`INVOLVED_IN`] -> (:`['Step']`)
-(:`Standard`) - [:`CONTAINS`] -> (:`['Category']`)
-(:`Standard`) - [:`HAS_SPEC`] -> (:`['Standard']`)
-(:`Standard`) - [:`MAPS_TO`] -> (:`['Mapping']`)
-(:`ControlObjective`) - [:`HAS_SPECIFICATION`] -> (:`['ControlSpecification']`)
-(:`Mapping`) - [:`TARGET`] -> (:`['Subcategory']`)
-(:`FrameworkAndStandards`) - [:`HAS_CONTROL`] -> (:`['Control']`)
-(:`FrameworkAndStandards`) - [:`PUBLISHED_BY`] -> (:`['GoverningBody']`)
-(:`Safeguard`) - [:`BELONGS_TO_IMPLEMENTATION_GROUP`] -> (:`['ImplementationGroup']`)
-(:`Safeguard`) - [:`APPLIES_TO_ASSET_CLASS`] -> (:`['AssetClass']`)
-(:`Safeguard`) - [:`SAFEGUARD_MAPS_TO_SECURITY_FUNCTION`] -> (:`['SecurityFunction']`)
+(:`HAS_PROFILE`) - [:`Organization`] -> (:`['EnterpriseProfile']`)
+(:`HAS_BUSINESS_PROFILE`) - [:`EnterpriseProfile`] -> (:`['BusinessProfile']`)
+(:`HAS_SECURITY_PROFILE`) - [:`EnterpriseProfile`] -> (:`['SecurityProfile']`)
+(:`HAS_TECHNOLOGY_PROFILE`) - [:`EnterpriseProfile`] -> (:`['TechnologyProfile']`)
+(:`Organization`) - [:`HAS_PROFILE`] -> (:`['EnterpriseProfile']`)
+(:`EnterpriseProfile`) - [:`HAS_BUSINESS_PROFILE`] -> (:`['BusinessProfile']`)
+(:`EnterpriseProfile`) - [:`HAS_SECURITY_PROFILE`] -> (:`['SecurityProfile']`)
+(:`EnterpriseProfile`) - [:`HAS_TECHNOLOGY_PROFILE`] -> (:`['TechnologyProfile']`)
 
 
 Please respect relationship types and directions when creating or querying the graph.
